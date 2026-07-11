@@ -5,13 +5,24 @@ import { FieldGroup } from '@/components/ui/field';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { PlusIcon } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import React, { RefAttributes, useCallback, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CountrySelector } from '../country-selector';
 import { DatePickerField } from '../date-picker-field';
 import { MatchScoreOTP } from '../match-score-otp/MathScoreOTP';
 
-export interface MatchFormProps {
+export interface MatchFormMethods {
+    open: () => void;
+    close: () => void;
+}
+
+export interface MatchFormProps extends RefAttributes<MatchFormMethods> {
+    defaultValues?: {
+        firstCountry: string;
+        secondCountry: string;
+        score: string;
+        date: string;
+    };
     onSubmit?: (data: {
         firstCountry: string;
         secondCountry: string;
@@ -19,18 +30,40 @@ export interface MatchFormProps {
         secondCountryScore: string;
         date: string;
     }) => void;
+    renderTrigger?: () => React.ReactNode;
+    withTrigger?: boolean;
 }
 
-export function MatchForm({ onSubmit }: MatchFormProps) {
+export function MatchForm({
+    ref,
+    defaultValues = {
+        firstCountry: '',
+        secondCountry: '',
+        score: '',
+        date: '',
+    },
+    renderTrigger,
+    withTrigger = true,
+    onSubmit,
+}: MatchFormProps) {
     const { control, handleSubmit, reset } = useForm({
-        defaultValues: {
-            firstCountry: '',
-            secondCountry: '',
-            score: '',
-            date: '',
-        },
+        defaultValues,
     });
+
     const [isOpen, setIsOpen] = useState<boolean>(false);
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            open: () => {
+                setIsOpen(true);
+            },
+            close: () => {
+                setIsOpen(false);
+            },
+        }),
+        [],
+    );
 
     const handleOnSubmit = useCallback<
         (data: { firstCountry: string; secondCountry: string; score: string; date: string }) => void
@@ -56,12 +89,18 @@ export function MatchForm({ onSubmit }: MatchFormProps) {
     return (
         <div className="flex-1">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger asChild>
-                    <Button variant="outline">
-                        <PlusIcon />
-                        Add
-                    </Button>
-                </SheetTrigger>
+                {withTrigger && (
+                    <SheetTrigger asChild>
+                        {renderTrigger ? (
+                            renderTrigger()
+                        ) : (
+                            <Button variant="outline">
+                                <PlusIcon />
+                                Add
+                            </Button>
+                        )}
+                    </SheetTrigger>
+                )}
 
                 <SheetContent
                     side="right"

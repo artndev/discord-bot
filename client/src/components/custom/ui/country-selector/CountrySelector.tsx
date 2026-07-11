@@ -2,6 +2,7 @@
 
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getFlagEmoji } from '@/lib/utils';
 import { getData } from 'country-list';
 import { Control, Controller, ControllerProps, FieldValues } from 'react-hook-form';
 
@@ -12,17 +13,6 @@ export type CountrySelectorProps<T extends FieldValues> = {
     rules?: ControllerProps<T>['rules'];
 } & {
     [key: string]: any;
-};
-
-const getFlagEmoji = (countryCode: string) => {
-    const codePoints = countryCode
-        .toUpperCase()
-        .split('')
-        .map((char) => {
-            return 127397 + char.charCodeAt(0);
-        });
-
-    return String.fromCodePoint(...codePoints);
 };
 
 export function CountrySelector<T extends FieldValues>({

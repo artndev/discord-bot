@@ -1,19 +1,22 @@
 'use client';
 
-import { MatchForm } from '@/components/custom/ui/match-form';
+import { Match } from '@/components/custom/ui/match';
+import { MatchForm, MatchFormMethods } from '@/components/custom/ui/match-form';
 import { Settings } from '@/components/custom/ui/settings';
 import { IdParam } from '@/types';
 import { GuildSettings } from '@shared/schemas';
 import { Database } from '@shared/types/database.types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getGuildById } from '../actions';
-import { getAllMatches, registerMatch, sendMatchNotification } from './actions';
+import { getAllMatches, registerMatch, sendMatchNotification, updateMatch } from './actions';
 
 export default function Matches() {
     const { id } = useParams<IdParam>();
+    const [currentMatch, setCurrentMatch] = useState<Database['public']['Tables']['matches']['Row'] | null>(null);
+    const matchForm = useRef<MatchFormMethods | null>(null);
 
     const {
         data: guild,
@@ -61,7 +64,7 @@ export default function Matches() {
         enabled: !!id,
     });
 
-    const { mutateAsync: registerMatchMutation, isPending } = useMutation({
+    const { mutateAsync: registerMatchMutation, isPending: registerMatchIsPending } = useMutation({
         mutationFn: async (
             match: Omit<Database['public']['Tables']['matches']['Row'], 'guild_id' | 'created_at' | 'id'>,
         ) => {
@@ -97,7 +100,35 @@ export default function Matches() {
         },
     });
 
-    const handleOnSubmit = useCallback<
+    const { mutateAsync: updateMatchMutation, isPending: updateMatchIsPending } = useMutation({
+        mutationFn: async ({
+            matchId,
+            match,
+        }: {
+            matchId: string;
+            match: Omit<Database['public']['Tables']['matches']['Row'], 'guild_id' | 'created_at' | 'id'>;
+        }) => {
+            if (!id) {
+                throw new Error('[matches] id is not provided!');
+            }
+
+            const data = await updateMatch(id, matchId, match);
+            if (data.status !== 200) {
+                throw new Error(data.message);
+            }
+
+            return data;
+        },
+        onSuccess: () => {
+            refetch();
+
+            setCurrentMatch(null);
+
+            matchForm.current?.close();
+        },
+    });
+
+    const handleRegisterMatch = useCallback<
         (data: {
             firstCountry: string;
             secondCountry: string;
@@ -118,13 +149,78 @@ export default function Matches() {
         [registerMatchMutation],
     );
 
-    if (!matches || isLoading || guildIsLoading || isPending) {
+    const handleUpdateMatch = useCallback<
+        (data: {
+            firstCountry: string;
+            secondCountry: string;
+            firstCountryScore: string;
+            secondCountryScore: string;
+            date: string;
+        }) => void
+    >(
+        (data) => {
+            if (!currentMatch) {
+                return;
+            }
+
+            updateMatchMutation({
+                matchId: currentMatch.id,
+                match: {
+                    first_country: data.firstCountry,
+                    second_country: data.secondCountry,
+                    first_country_score: data.firstCountryScore,
+                    second_country_score: data.secondCountryScore,
+                    date: data.date,
+                },
+            });
+        },
+        [updateMatchMutation, currentMatch],
+    );
+
+    const matchFormDefaultValues = useMemo(() => {
+        return currentMatch
+            ? {
+                  firstCountry: currentMatch.first_country,
+                  secondCountry: currentMatch.second_country,
+                  score: currentMatch.first_country_score + currentMatch.second_country_score,
+                  date: currentMatch.date,
+              }
+            : undefined;
+    }, [currentMatch]);
+
+    if (!matches || isLoading || guildIsLoading || registerMatchIsPending || updateMatchIsPending) {
         return <Settings.Skeleton />;
     }
 
     return (
         <div className="flex flex-col gap-6">
-            <MatchForm onSubmit={handleOnSubmit} />
+            <MatchForm onSubmit={handleRegisterMatch} />
+
+            <MatchForm
+                key={currentMatch ? currentMatch.id : 'new'}
+                ref={matchForm}
+                withTrigger={false}
+                onSubmit={handleUpdateMatch}
+                defaultValues={matchFormDefaultValues}
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {matches.map((match) => {
+                    return (
+                        <Match
+                            {...match}
+                            onRemove={() => {}}
+                            onEdit={() => {
+                                setCurrentMatch(match);
+
+                                setTimeout(() => {
+                                    matchForm.current?.open();
+                                }, 500);
+                            }}
+                        />
+                    );
+                })}
+            </div>
         </div>
     );
 }

@@ -28,6 +28,16 @@ export async function registerMatch(
     return data;
 }
 
+export async function updateMatch(
+    guildId: string,
+    matchId: string,
+    match: Omit<Database['public']['Tables']['matches']['Row'], 'guild_id' | 'created_at' | 'id'>,
+) {
+    const { data } = await apiClient.put<ApiResponse>(`/guilds/${guildId}/matches/${matchId}`, match);
+
+    return data;
+}
+
 export async function sendMatchNotification(webhookUrl: string, match: Database['public']['Tables']['matches']['Row']) {
     const payload = {
         embeds: [
