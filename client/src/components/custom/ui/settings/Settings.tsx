@@ -10,13 +10,20 @@ import { Setting } from './setting/Setting';
 
 export interface SettingsProps<T extends ZodObject<any>> {
     schema: T;
-    onSubmit: SubmitHandler<z.TypeOf<T>>;
+    onSubmit: SubmitHandler<z.infer<T>>;
     defaultValues?: z.infer<T>;
+    descriptions?: { [K in keyof z.infer<T>]?: string };
 }
 
 export interface SettingsSkeletonProps extends React.ComponentProps<'div'> {}
 
-function SettingsComponent<T extends ZodObject<any>>({ schema, onSubmit, defaultValues }: SettingsProps<T>) {
+function SettingsComponent<T extends ZodObject<any>>({
+    schema,
+    onSubmit,
+    defaultValues,
+    descriptions,
+}: SettingsProps<T>) {
+    const id = useId();
     const methods = useForm<z.infer<T>>({
         resolver: zodResolver(schema),
         mode: 'onSubmit',
@@ -54,24 +61,31 @@ function SettingsComponent<T extends ZodObject<any>>({ schema, onSubmit, default
                     val,
                     baseSchema,
                     isArray,
-                    typedKey: key as Path<z.TypeOf<T>>,
+                    typedKey: key as Path<z.infer<T>>,
+                    description: descriptions?.[key],
                 };
             })
             .filter(Boolean);
     }, [schema]);
 
     const MasonryCard = ({ data }: { data: any }) => {
-        const { typedKey, baseSchema, isArray } = data;
+        const { typedKey, baseSchema, isArray, description } = data;
         const typeName = baseSchema._def.typeName;
         const options = baseSchema._def?.values ?? [];
 
         if (typeName === ZodFirstPartyTypeKind.ZodString) {
-            return <Setting.Text name={typedKey} control={methods.control} />;
+            return <Setting.Text name={typedKey} control={methods.control} description={description} />;
         } else if (typeName === ZodFirstPartyTypeKind.ZodBoolean) {
-            return <Setting.Boolean name={typedKey} control={methods.control} />;
+            return <Setting.Boolean name={typedKey} control={methods.control} description={description} />;
         } else if (typeName === ZodFirstPartyTypeKind.ZodEnum) {
             return (
-                <Setting.Variants name={typedKey} control={methods.control} variants={options} multiselect={isArray} />
+                <Setting.Variants
+                    name={typedKey}
+                    control={methods.control}
+                    variants={options}
+                    multiselect={isArray}
+                    description={description}
+                />
             );
         }
 
@@ -91,8 +105,8 @@ function SettingsComponent<T extends ZodObject<any>>({ schema, onSubmit, default
                             breakpointCols={BREAKPOINT_COLUMNS}
                             className="flex gap-6"
                             columnClassName="flex flex-col gap-6">
-                            {items.map((data: any) => {
-                                return <MasonryCard data={data} />;
+                            {items.map((data: any, i) => {
+                                return <MasonryCard key={`setting-${id}-${i}`} data={data} />;
                             })}
                         </Masonry>
                     </div>

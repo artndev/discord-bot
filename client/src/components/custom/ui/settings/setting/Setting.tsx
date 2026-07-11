@@ -6,6 +6,7 @@ import { useId } from 'react';
 import { Control, Controller, ControllerProps, FieldValues } from 'react-hook-form';
 
 export interface SettingProps<T extends FieldValues> {
+    description?: string;
     control: Control<T>;
     name: ControllerProps<T>['name'];
     rules?: ControllerProps<T>['rules'];
@@ -15,7 +16,7 @@ function SettingComponent() {
     return null;
 }
 
-function SettingBooleanComponent<T extends FieldValues>({ control, name, rules }: SettingProps<T>) {
+function SettingBooleanComponent<T extends FieldValues>({ description, control, name, rules }: SettingProps<T>) {
     return (
         <Controller
             control={control}
@@ -27,11 +28,7 @@ function SettingBooleanComponent<T extends FieldValues>({ control, name, rules }
                         <CardHeader>
                             <CardTitle>{name}</CardTitle>
 
-                            <CardDescription>
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto ab facere vel incidunt,
-                                placeat dolor assumenda at quas possimus facilis totam tempore aspernatur quidem magni
-                                optio atque ipsam maxime aut?
-                            </CardDescription>
+                            <CardDescription>{description}</CardDescription>
                         </CardHeader>
 
                         <CardContent>
@@ -44,7 +41,7 @@ function SettingBooleanComponent<T extends FieldValues>({ control, name, rules }
     );
 }
 
-function SettingTextComponent<T extends FieldValues>({ control, name, rules }: SettingProps<T>) {
+function SettingTextComponent<T extends FieldValues>({ control, name, rules, description }: SettingProps<T>) {
     return (
         <Controller
             control={control}
@@ -56,11 +53,7 @@ function SettingTextComponent<T extends FieldValues>({ control, name, rules }: S
                         <CardHeader>
                             <CardTitle>{name}</CardTitle>
 
-                            <CardDescription>
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto ab facere vel incidunt,
-                                placeat dolor assumenda at quas possimus facilis totam tempore aspernatur quidem magni
-                                optio atque ipsam maxime aut?
-                            </CardDescription>
+                            <CardDescription>{description}</CardDescription>
                         </CardHeader>
 
                         <CardContent>
@@ -79,6 +72,7 @@ function SettingVariantsComponent<T extends FieldValues>({
     rules,
     variants,
     multiselect = false,
+    description,
 }: SettingProps<T> & { variants: readonly string[]; multiselect?: boolean }) {
     const id = useId();
 
@@ -95,11 +89,7 @@ function SettingVariantsComponent<T extends FieldValues>({
                         <CardHeader>
                             <CardTitle>{name}</CardTitle>
 
-                            <CardDescription>
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto ab facere vel incidunt,
-                                placeat dolor assumenda at quas possimus facilis totam tempore aspernatur quidem magni
-                                optio atque ipsam maxime aut?
-                            </CardDescription>
+                            <CardDescription>{description}</CardDescription>
                         </CardHeader>
 
                         <CardContent>

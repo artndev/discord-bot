@@ -74,6 +74,12 @@ export default function Guild() {
                 schema={guildSettingSchema._def.innerType}
                 defaultValues={guild.settings as any}
                 onSubmit={updateGuildSettingsMutate}
+                descriptions={{
+                    ai_profile:
+                        'Default profile that is used in AI-associated slash commands. It is used globally until a user decides to switch to another profile.',
+                    enable_echoing:
+                        'Echoing is determined to alert members of the server about creation of matches; in order to do so, you need to be equipped with a webhook.',
+                }}
             />
         </div>
     );

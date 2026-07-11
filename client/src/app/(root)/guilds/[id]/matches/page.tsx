@@ -83,7 +83,7 @@ export default function Matches() {
             try {
                 const webhookUrl = guild?.settings?.meta?.webhookUrl;
 
-                if (webhookUrl) {
+                if (webhookUrl && guild.settings.enable_echoing) {
                     const res = await sendMatchNotification(webhookUrl, match);
 
                     if (res.ok) {
@@ -92,7 +92,7 @@ export default function Matches() {
                         toast.error('Match created, but failed to notify via Discord ⚠️');
                     }
                 } else {
-                    toast.success('Match created! (No webhook configured) 🎮');
+                    toast.success("Match created! (Webhook isn't configured or echoing is disabled) 🎮");
                 }
             } catch (err) {}
 
