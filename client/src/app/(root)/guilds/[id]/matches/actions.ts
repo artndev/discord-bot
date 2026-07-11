@@ -38,6 +38,12 @@ export async function updateMatch(
     return data;
 }
 
+export async function deleteMatch(guildId: string, matchId: string) {
+    const { data } = await apiClient.delete<ApiResponse>(`/guilds/${guildId}/matches/${matchId}`);
+
+    return data;
+}
+
 export async function sendMatchNotification(webhookUrl: string, match: Database['public']['Tables']['matches']['Row']) {
     const payload = {
         embeds: [

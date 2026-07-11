@@ -11,7 +11,7 @@ import { useParams } from 'next/navigation';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getGuildById } from '../actions';
-import { getAllMatches, registerMatch, sendMatchNotification, updateMatch } from './actions';
+import { deleteMatch, getAllMatches, registerMatch, sendMatchNotification, updateMatch } from './actions';
 
 export default function Matches() {
     const { id } = useParams<IdParam>();
@@ -128,6 +128,24 @@ export default function Matches() {
         },
     });
 
+    const { mutateAsync: deleteMatchMutation, isPending: deleteMatchIsPending } = useMutation({
+        mutationFn: async ({ matchId }: { matchId: string }) => {
+            if (!id) {
+                throw new Error('[matches] id is not provided!');
+            }
+
+            const data = await deleteMatch(id, matchId);
+            if (data.status !== 200) {
+                throw new Error(data.message);
+            }
+
+            return data;
+        },
+        onSuccess: () => {
+            refetch();
+        },
+    });
+
     const handleRegisterMatch = useCallback<
         (data: {
             firstCountry: string;
@@ -188,7 +206,14 @@ export default function Matches() {
             : undefined;
     }, [currentMatch]);
 
-    if (!matches || isLoading || guildIsLoading || registerMatchIsPending || updateMatchIsPending) {
+    if (
+        !matches ||
+        isLoading ||
+        guildIsLoading ||
+        registerMatchIsPending ||
+        updateMatchIsPending ||
+        deleteMatchIsPending
+    ) {
         return <Settings.Skeleton />;
     }
 
@@ -209,7 +234,7 @@ export default function Matches() {
                     return (
                         <Match
                             {...match}
-                            onRemove={() => {}}
+                            onRemove={() => deleteMatchMutation({ matchId: match.id })}
                             onEdit={() => {
                                 setCurrentMatch(match);
 
