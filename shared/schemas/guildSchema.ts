@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { WEBHOOK_URL_REGEX } from "../constants";
 
 export const guildSettingSchema = z
   .object({
@@ -8,6 +9,11 @@ export const guildSettingSchema = z
     test_4: z
       .array(z.enum(["enum_1", "enum_2", "enum_3", "enum_4", "enum_5"]))
       .optional(),
+    meta: z
+      .object({
+        webhookUrl: z.string().regex(WEBHOOK_URL_REGEX).optional(),
+      })
+      .default({}),
   })
   .partial()
   .default({});

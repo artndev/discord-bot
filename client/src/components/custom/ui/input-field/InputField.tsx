@@ -1,17 +1,16 @@
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { DetailedHTMLProps, InputHTMLAttributes } from 'react';
 import { Control, Controller, ControllerProps, FieldValues } from 'react-hook-form';
-import { DatePicker } from '../date-picker/DatePicker';
 
-export type DatePickerFieldProps<T extends FieldValues> = {
+export type InputFieldProps<T extends FieldValues> = {
     label: string;
     control: Control<T>;
     name: ControllerProps<T>['name'];
     rules?: ControllerProps<T>['rules'];
-} & {
-    [key: string]: any;
-};
+} & DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 
-export function DatePickerField<T extends FieldValues>({ label, control, name, rules }: DatePickerFieldProps<T>) {
+export function InputField<T extends FieldValues>({ label, control, name, rules, ...props }: InputFieldProps<T>) {
     return (
         <Controller
             control={control}
@@ -30,10 +29,7 @@ export function DatePickerField<T extends FieldValues>({ label, control, name, r
                         }}>
                         <FieldLabel>{label}</FieldLabel>
 
-                        <DatePicker
-                            value={!isNaN(new Date(value).getTime()) ? new Date(value) : undefined}
-                            onChange={(val) => onChange(val?.toISOString())}
-                        />
+                        <Input {...props} value={value} onChange={onChange} />
 
                         <FieldError>{error?.message}</FieldError>
                     </Field>

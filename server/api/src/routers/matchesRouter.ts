@@ -2,7 +2,7 @@ import express from 'express';
 import { matchesController } from '../controllers';
 import { apiKeyMiddleware } from '../middlewares';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.use(apiKeyMiddleware);
 

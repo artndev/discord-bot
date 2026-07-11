@@ -115,6 +115,7 @@ export const registerMatch = async (req: Request, res: Response) => {
 export const getAllMatches = async (req: Request, res: Response) => {
     try {
         const guildIdValidation = paramSchemas.idSchema.safeParse(req.params.guild_id);
+        console.log(req.params, req.params.guild_id);
 
         if (!guildIdValidation.success) {
             return res.status(400).json({

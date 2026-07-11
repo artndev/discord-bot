@@ -4,15 +4,11 @@ import { Guild } from '@/components/custom/ui/guild/Guild';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useCurrentGuild } from '@/stores';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import { getGuildsByOwnerId } from './actions';
 
 export default function Home() {
-    const router = useRouter();
     const { user, signOut } = useAuthContext();
-    const { setGuildId } = useCurrentGuild((state) => state.actions);
 
     const {
         data: guilds,

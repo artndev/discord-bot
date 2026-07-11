@@ -17,6 +17,7 @@ export interface MatchFormProps {
         secondCountry: string;
         firstCountryScore: string;
         secondCountryScore: string;
+        date: string;
     }) => void;
 }
 

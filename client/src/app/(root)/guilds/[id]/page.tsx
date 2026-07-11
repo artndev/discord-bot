@@ -1,6 +1,8 @@
 'use client';
 
 import { Settings } from '@/components/custom/ui/settings';
+import { WebhookForm } from '@/components/custom/ui/webhook-form/WebhookForm';
+import { Separator } from '@/components/ui/separator';
 import { IdParam } from '@/types';
 import { GuildSettings, guildSettingSchema } from '@shared/schemas';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -30,7 +32,7 @@ export default function Guild() {
                 throw new Error(data.message);
             }
 
-            return data.guild;
+            return { ...data.guild, settings: data.guild.settings as GuildSettings };
         },
         staleTime: 5 * 60 * 1000,
         enabled: !!id,
@@ -59,10 +61,19 @@ export default function Guild() {
     }
 
     return (
-        <Settings
-            schema={guildSettingSchema._def.innerType}
-            defaultValues={guild.settings as any}
-            onSubmit={updateGuildSettingsMutate}
-        />
+        <div className="flex flex-col gap-6">
+            <WebhookForm
+                defaultValues={{ webhookUrl: guild.settings?.meta?.webhookUrl ?? '' }}
+                onSubmit={({ webhookUrl }) => updateGuildSettingsMutate({ meta: { webhookUrl } })}
+            />
+
+            <Separator />
+
+            <Settings
+                schema={guildSettingSchema._def.innerType}
+                defaultValues={guild.settings as any}
+                onSubmit={updateGuildSettingsMutate}
+            />
+        </div>
     );
 }
