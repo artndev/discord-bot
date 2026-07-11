@@ -4,7 +4,7 @@ import { Match } from '@/components/custom/ui/match';
 import { MatchForm, MatchFormMethods } from '@/components/custom/ui/match-form';
 import { Settings } from '@/components/custom/ui/settings';
 import { IdParam } from '@/types';
-import { GuildSettings } from '@shared/schemas';
+import { GuildSettings } from '@shared/types';
 import { Database } from '@shared/types/database.types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';

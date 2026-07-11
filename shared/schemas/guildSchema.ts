@@ -24,5 +24,3 @@ export const guildSchema = z.object({
   name: z.string().trim().min(1),
   settings: guildSettingSchema,
 });
-
-export type GuildSettings = z.infer<typeof guildSettingSchema>;

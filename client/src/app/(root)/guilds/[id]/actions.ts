@@ -1,8 +1,7 @@
 'use server';
 
 import { apiClient } from '@/lib/axios';
-import { ApiResponse } from '@/types';
-import { GuildSettings } from '@shared/schemas';
+import { ApiResponse, GuildSettings } from '@shared/types';
 import { Database } from '@shared/types/database.types';
 
 export async function getGuildById(guildId: string) {

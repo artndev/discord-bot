@@ -1,7 +1,7 @@
 'use server';
 
 import { apiClient, globalApiClient } from '@/lib/axios';
-import { ApiResponse } from '@/types';
+import { ApiResponse } from '@shared/types';
 import { Database } from '@shared/types/database.types';
 import axios from 'axios';
 

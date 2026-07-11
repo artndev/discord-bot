@@ -1,15 +1,16 @@
 import * as CONSTANTS from '@/src/constants';
+import { messageSchema } from '@shared/schemas';
 import { Request, Response } from 'express';
 import z from 'zod';
 import { supabase } from '../db';
-import { messageSchema, paramSchemas } from '../schemas';
+import { paramSchemas } from '../schemas';
 
 export const updateHistory = async (req: Request, res: Response) => {
     try {
         const validation = messageSchema.safeParse(req.body);
         if (!validation.success) {
             return res.status(400).json({
-                message: z.treeifyError(validation.error).errors,
+                message: z.treeifyError(validation.error as any).errors,
                 status: 400,
             });
         }

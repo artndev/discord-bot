@@ -1,51 +1,48 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
-import * as CONSTANTS from '@/src/constants';
-import { ZhipuChatCompletion } from '@/types';
-import OpenAI from 'openai';
+import { GoogleGenAI } from '@google/genai';
+import { AI_PROFILES } from '@shared/constants';
+import { messageSchema } from '@shared/schemas';
+import { AiProfileName } from '@shared/types';
+import { Database } from '@shared/types/database.types';
+import z from 'zod';
 import { apiClient } from './axios';
 
-const client = new OpenAI({
-    apiKey: process.env.GLM_API_KEY,
-    baseURL: 'https://open.bigmodel.cn/api/paas/v4',
-});
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-export const ask = async (channelId: string, message: string) => {
-    const response = await apiClient.get(`/ai_chat_history/${channelId}`);
+export const ask = async (
+    channelId: string,
+    message: string,
+    profileName: AiProfileName = 'default',
+    additionalContext?: string,
+) => {
+    const response = await apiClient.get<{ history: Database['public']['Tables']['ai_chat_history']['Row'][] }>(
+        `/ai_chat_history/${channelId}`,
+    );
+    const history = response.data.history.map(({ role, content }) => ({
+        role: role as z.infer<typeof messageSchema>['role'],
+        parts: [{ text: content }],
+    }));
 
-    const answer = (await client.chat.completions.create(
-        CONSTANTS.GET_ZHIPU_PARAMS([
-            {
-                role: 'system',
-                content:
-                    'Keep your response concise. If your answer is very long, structure it clearly with headings. Do not exceed 1800 characters!',
-            },
-            ...response.data.history,
-            { role: 'system', content: 'End of history. User is currently saying:' },
-            {
-                role: 'user',
-                content: message,
-            },
-        ]),
-    )) as ZhipuChatCompletion;
-
-    const content = answer.choices[0]?.message.content;
-    if (!content) {
-        throw new Error('[aiService] Received invalid content');
-    }
-
-    await apiClient.post('/ai_chat_history', {
-        channel_id: channelId,
-        role: 'user',
-        content: message,
+    const { text } = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: [...history, { role: 'user', parts: [{ text: message }] }],
+        config: { systemInstruction: `${AI_PROFILES[profileName]}\n${additionalContext ?? ''}` },
     });
 
-    await apiClient.post('/ai_chat_history', {
-        channel_id: channelId,
-        role: 'assistant',
-        content,
-    });
+    await Promise.all([
+        apiClient.post('/ai_chat_history', {
+            channel_id: channelId,
+            role: 'user',
+            content: message,
+        }),
+        apiClient.post('/ai_chat_history', {
+            channel_id: channelId,
+            role: 'model',
+            content: text,
+        }),
+    ]);
 
-    return content;
+    return text;
 };
