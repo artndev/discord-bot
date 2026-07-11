@@ -5,42 +5,56 @@ import { FieldGroup } from '@/components/ui/field';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { PlusIcon } from 'lucide-react';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CountrySelector } from '../country-selector';
+import { DatePickerField } from '../date-picker-field';
 import { MatchScoreOTP } from '../match-score-otp/MathScoreOTP';
 
-interface MatchFormProps {
-    onSubmit: () => void;
+export interface MatchFormProps {
+    onSubmit?: (data: {
+        firstCountry: string;
+        secondCountry: string;
+        firstCountryScore: string;
+        secondCountryScore: string;
+    }) => void;
 }
 
-export function MatchForm() {
-    const { control, handleSubmit } = useForm({
+export function MatchForm({ onSubmit }: MatchFormProps) {
+    const { control, handleSubmit, reset } = useForm({
         defaultValues: {
             firstCountry: '',
             secondCountry: '',
             score: '',
+            date: '',
         },
     });
+    const [isOpen, setIsOpen] = useState<boolean>(false);
 
-    const onSubmit = useCallback<(data: { firstCountry: string; secondCountry: string; score: string }) => void>(
+    const handleOnSubmit = useCallback<
+        (data: { firstCountry: string; secondCountry: string; score: string; date: string }) => void
+    >(
         (data) => {
             const { score, ...args } = data;
             const firstCountryScore = score.slice(0, 2);
             const secondCountryScore = score.slice(2, 4);
 
-            console.log({
+            onSubmit?.({
+                ...args,
                 firstCountryScore,
                 secondCountryScore,
-                ...args,
             });
+
+            reset();
+
+            setIsOpen(false);
         },
-        [],
+        [onSubmit],
     );
 
     return (
         <div className="flex-1">
-            <Sheet>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                     <Button variant="outline">
                         <PlusIcon />
@@ -59,7 +73,7 @@ export function MatchForm() {
                     </SheetHeader>
 
                     <form
-                        onSubmit={handleSubmit(onSubmit)}
+                        onSubmit={handleSubmit(handleOnSubmit)}
                         className="flex flex-col gap-6 size-full"
                         style={{
                             paddingLeft: 24,
@@ -99,6 +113,17 @@ export function MatchForm() {
                                             value: new RegExp(REGEXP_ONLY_DIGITS),
                                             message: 'Score must contain only digits',
                                         },
+                                    }}
+                                />
+                            </FieldGroup>
+
+                            <FieldGroup>
+                                <DatePickerField
+                                    label="Date"
+                                    control={control}
+                                    name="date"
+                                    rules={{
+                                        required: 'Date is required',
                                     }}
                                 />
                             </FieldGroup>

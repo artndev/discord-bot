@@ -1,6 +1,6 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -117,13 +117,42 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    body {
+        @apply bg-background text-foreground;
     }
-  html {
-    @apply font-sans;
+    html {
+        @apply font-sans;
     }
+}
+
+[data-slot='input-otp-group'] {
+    display: flex !important;
+    gap: 0 !important;
+}
+
+[data-slot='input-otp-slot'] {
+    width: 40px !important;
+    height: 48px !important;
+    border: 1px solid var(--border) !important;
+    background: var(--card-foreground) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    border-left-width: 1 !important;
+    border-color: var(--border) !important;
+    background-color: transparent !important;
+}
+
+[data-slot='input-otp-slot']:first-child {
+    border-top-left-radius: 999px !important;
+    border-bottom-left-radius: 999px !important;
+}
+
+[data-slot='input-otp-slot']:last-child {
+    border-top-right-radius: 999px !important;
+    border-bottom-right-radius: 999px !important;
 }

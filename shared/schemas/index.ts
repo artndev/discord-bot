@@ -1,1 +1,3 @@
-export * from './guildSchema';
+export * from "./guildSchema";
+
+export * from "./matchSchema";

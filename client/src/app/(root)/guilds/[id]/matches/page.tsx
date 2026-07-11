@@ -9,7 +9,7 @@ export default function Matches() {
 
     return (
         <div className="flex flex-col gap-6">
-            <MatchForm />
+            <MatchForm onSubmit={(data) => console.log(data)} />
         </div>
     );
 }
