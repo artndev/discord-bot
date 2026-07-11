@@ -24,6 +24,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { guildId } = useCurrentGuild((state) => state);
     const pathname = usePathname();
 
+    const segments = useMemo(() => {
+        if (!pathname) {
+            return [];
+        }
+
+        return (
+            pathname?.split('/')?.filter((val) => {
+                return val !== '';
+            }) ?? []
+        );
+    }, [pathname]);
+
     const data = useMemo(() => {
         return [
             {
@@ -32,7 +44,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {
                         title: 'General',
                         url: guildId ? `/guilds/${guildId}` : '/',
-                        isActive: pathname.includes('/guilds/'),
+                        isActive: segments[1] === guildId && segments.length === 2,
+                    },
+                    {
+                        title: 'Matches',
+                        url: guildId ? `/guilds/${guildId}/matches` : '/',
+                        isActive: segments[2] === 'matches',
                     },
                 ],
             },
@@ -42,12 +59,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {
                         title: 'Account',
                         url: '/account',
-                        isActive: pathname.includes('/account'),
+                        isActive: segments[0] === 'account',
                     },
                 ],
             },
         ];
-    }, [guildId, pathname]);
+    }, [guildId, segments]);
 
     return (
         <Sidebar {...props}>
