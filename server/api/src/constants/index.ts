@@ -1,0 +1,1 @@
+export const AI_CHAT_HISTORY_MAX_MESSAGES = 20;

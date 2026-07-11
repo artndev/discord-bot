@@ -1,0 +1,12 @@
+{
+  "name": "@app/shared",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "supabase:sync_types": "npx supabase gen types typescript --project-id ejvrimbjzcvzcnrsslwp --schema public --log-level none --yes > types/database.types.ts"
+  },
+  "devDependencies": {
+    "supabase": "^2.109.0"
+  }
+}

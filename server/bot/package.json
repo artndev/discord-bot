@@ -1,0 +1,27 @@
+{
+    "name": "bot",
+    "version": "1.0.0",
+    "description": "",
+    "license": "ISC",
+    "author": "",
+    "type": "commonjs",
+    "main": "index.js",
+    "scripts": {
+        "dev": "npx tsx watch --exclude node_modules --include src src/index.ts",
+        "start": "npx pm2 start src/index.ts --name discord-bot --interpreter tsx",
+        "stop": "npx pm2 stop discord-bot",
+        "restart": "npx pm2 restart discord-bot --update-env",
+        "logs": "npx pm2 logs discord-bot --lines 50",
+        "prod": "npx pm2 start src/index.ts --name discord-bot --watch --no-daemon --interpreter tsx"
+    },
+    "dependencies": {
+        "axios": "^1.18.0",
+        "discord.js": "^14.26.4",
+        "dotenv": "^17.4.2",
+        "openai": "^6.45.0"
+    },
+    "devDependencies": {
+        "pm2": "^7.0.3",
+        "tsx": "^4.23.0"
+    }
+}
