@@ -93,9 +93,13 @@ export const registerMatch = async (req: Request, res: Response) => {
         }
 
         const guildId = guildIdValidation.data;
-        const match = validation.data;
+        const newMatch = validation.data;
 
-        const { error } = await supabase.from('matches').upsert({ ...match, guild_id: guildId });
+        const { data: match, error } = await supabase
+            .from('matches')
+            .upsert({ ...newMatch, guild_id: guildId })
+            .select()
+            .single();
         if (error) {
             throw new Error(error.message);
         }
@@ -103,6 +107,7 @@ export const registerMatch = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: 'Success',
             status: 200,
+            match,
         });
     } catch (err) {
         return res.status(500).json({

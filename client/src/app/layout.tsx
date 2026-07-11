@@ -1,6 +1,7 @@
 'use client';
 
 import { ThemeProvider } from '@/components/custom/ui/theme-provider/ThemeProvider';
+import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -19,14 +20,16 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={cn('h-full antialiased', 'font-sans', inter.variable)} suppressHydrationWarning>
-            <body className="h-full flex flex-col">
+            <body className="flex flex-col h-full">
                 <QueryClientProvider client={queryClient}>
                     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
                         <AuthProvider>
-                            <TooltipProvider>{children}</TooltipProvider>
+                            <TooltipProvider>{children} </TooltipProvider>
                         </AuthProvider>
                     </ThemeProvider>
                 </QueryClientProvider>
+
+                <Toaster />
             </body>
         </html>
     );

@@ -3,14 +3,40 @@
 import { MatchForm } from '@/components/custom/ui/match-form';
 import { Settings } from '@/components/custom/ui/settings';
 import { IdParam } from '@/types';
+import { GuildSettings } from '@shared/schemas';
 import { Database } from '@shared/types/database.types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useCallback } from 'react';
-import { getAllMatches, registerMatch } from './actions';
+import { toast } from 'sonner';
+import { getGuildById } from '../actions';
+import { getAllMatches, registerMatch, sendMatchNotification } from './actions';
 
 export default function Matches() {
     const { id } = useParams<IdParam>();
+
+    const {
+        data: guild,
+        isLoading: guildIsLoading,
+        error: guildError,
+        refetch: guildRefetch,
+    } = useQuery({
+        queryKey: ['guild', id],
+        queryFn: async () => {
+            if (!id) {
+                throw new Error('[(guilds)/[id]/page.tsx] id is not provided!');
+            }
+
+            const data = await getGuildById(id);
+            if (data.status !== 200) {
+                throw new Error(data.message);
+            }
+
+            return { ...data.guild, settings: data.guild.settings as GuildSettings };
+        },
+        staleTime: 5 * 60 * 1000,
+        enabled: !!id,
+    });
 
     const {
         data: matches,
@@ -35,7 +61,7 @@ export default function Matches() {
         enabled: !!id,
     });
 
-    const { mutateAsync: updateGuildSettingsMutate, isPending } = useMutation({
+    const { mutateAsync: registerMatchMutation, isPending } = useMutation({
         mutationFn: async (
             match: Omit<Database['public']['Tables']['matches']['Row'], 'guild_id' | 'created_at' | 'id'>,
         ) => {
@@ -48,9 +74,25 @@ export default function Matches() {
                 throw new Error(data.message);
             }
 
-            return data;
+            return data.match;
         },
-        onSuccess: () => {
+        onSuccess: async (match) => {
+            try {
+                const webhookUrl = guild?.settings?.meta?.webhookUrl;
+
+                if (webhookUrl) {
+                    const res = await sendMatchNotification(webhookUrl, match);
+
+                    if (res.ok) {
+                        toast.success('Match created and notified! 🎮');
+                    } else {
+                        toast.error('Match created, but failed to notify via Discord ⚠️');
+                    }
+                } else {
+                    toast.success('Match created! (No webhook configured) 🎮');
+                }
+            } catch (err) {}
+
             refetch();
         },
     });
@@ -65,7 +107,7 @@ export default function Matches() {
         }) => void
     >(
         (data) => {
-            updateGuildSettingsMutate({
+            registerMatchMutation({
                 first_country: data.firstCountry,
                 second_country: data.secondCountry,
                 first_country_score: data.firstCountryScore,
@@ -73,10 +115,10 @@ export default function Matches() {
                 date: data.date,
             });
         },
-        [updateGuildSettingsMutate],
+        [registerMatchMutation],
     );
 
-    if (!matches || isLoading || isPending) {
+    if (!matches || isLoading || guildIsLoading || isPending) {
         return <Settings.Skeleton />;
     }
 

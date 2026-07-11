@@ -7,3 +7,9 @@ export const apiClient = axios.create({
         'x-api-key': process.env.X_API_KEY,
     },
 });
+
+export const globalApiClient = axios.create({
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});

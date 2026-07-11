@@ -11,7 +11,7 @@ export const guildSettingSchema = z
       .optional(),
     meta: z
       .object({
-        webhookUrl: z.string().regex(WEBHOOK_URL_REGEX).optional(),
+        webhookUrl: z.string().regex(WEBHOOK_URL_REGEX).nullable().optional(),
       })
       .default({}),
   })
