@@ -1,4 +1,4 @@
-import { aiService } from '@/src/services';
+import { aiService, guildService } from '@/src/services';
 import { splitMessage } from '@/src/utils';
 import { AiProfileName } from '@shared/types';
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
@@ -24,14 +24,30 @@ export default {
         ),
     execute: async (interaction: ChatInputCommandInteraction) => {
         const question = interaction.options.getString('question')!;
-        const aiProfile = interaction.options.getString('profile') ?? 'default';
+        let aiProfile = interaction.options.getString('profile');
 
         await interaction.deferReply();
 
         try {
+            if (!aiProfile) {
+                try {
+                    if (!interaction.guildId) {
+                        throw new Error('[ask_ai] Not enough permissions');
+                    }
+
+                    const guild = await guildService.getGuildById(interaction.guildId);
+
+                    aiProfile = guild.settings.ai_profile ?? 'default';
+                } catch (error) {
+                    console.warn("[ask_ai] Could not parse ai_profile, resetting to 'default'");
+
+                    aiProfile = 'default';
+                }
+            }
+
             const answer = await aiService.ask(interaction.channelId, question, aiProfile as AiProfileName);
             if (!answer) {
-                throw new Error('[ask] Failed to process AI answer.');
+                throw new Error('[ask_ai] Failed to process AI answer.');
             }
 
             const chunks = splitMessage(answer);

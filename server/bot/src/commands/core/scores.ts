@@ -1,4 +1,4 @@
-import { aiService, matchService } from '@/src/services';
+import { aiService, guildService, matchService } from '@/src/services';
 import { splitMessage } from '@/src/utils';
 import { formatMatchesToEmbed } from '@/src/utils/formatters';
 import { AiProfileName } from '@shared/types';
@@ -23,7 +23,7 @@ export default {
         ),
     execute: async (interaction: ChatInputCommandInteraction) => {
         const summarize = interaction.options.getBoolean('summarize') ?? false;
-        const aiProfile = interaction.options.getString('profile') ?? 'default';
+        let aiProfile = interaction.options.getString('profile');
 
         await interaction.deferReply();
 
@@ -38,6 +38,18 @@ export default {
             await interaction.editReply({ embeds: [embed] });
 
             if (summarize) {
+                if (!aiProfile) {
+                    try {
+                        const guild = await guildService.getGuildById(interaction.guildId);
+
+                        aiProfile = guild.settings.ai_profile ?? 'default';
+                    } catch (error) {
+                        console.warn("[scores] Could not parse ai_profile, resetting to 'default'");
+
+                        aiProfile = 'default';
+                    }
+                }
+
                 const additionalContext = matches
                     .map((match) => {
                         return `${match.date}: ${match.first_country} ${match.first_country_score} - ${match.second_country_score} ${match.second_country}`;
