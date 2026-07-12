@@ -83,7 +83,7 @@ export default function Guild() {
                 <Settings
                     schema={guildSettingSchema._def.innerType}
                     defaultValues={guild.settings as any}
-                    onSubmit={updateGuildSettingsMutate}
+                    onSubmit={(values) => updateGuildSettingsMutate(values)}
                     descriptions={{
                         ai_profile:
                             'Default profile that is used in AI-associated slash commands. It is used globally until a user decides to switch to another profile.',
