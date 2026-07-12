@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useCurrentGuild } from '@/stores';
 import { Database } from '@shared/types/database.types';
 import { useRouter } from 'next/navigation';
 import { JSX, useMemo } from 'react';
@@ -10,6 +11,7 @@ export type GuildProps = Database['public']['Tables']['guilds']['Row'];
 
 function GuildComponent({ id, icon, name }: GuildProps) {
     const router = useRouter();
+    const { setGuildId } = useCurrentGuild((state) => state.actions);
 
     const guildIcon = useMemo(() => {
         return (
@@ -34,7 +36,14 @@ function GuildComponent({ id, icon, name }: GuildProps) {
             </CardHeader>
 
             <CardFooter>
-                <Button onClick={() => router.replace(`/guilds/${id}`)}>Go to Dashboard</Button>
+                <Button
+                    onClick={() => {
+                        setGuildId(id);
+
+                        router.replace(`/guilds/${id}`);
+                    }}>
+                    Go to Dashboard
+                </Button>
             </CardFooter>
         </Card>
     );

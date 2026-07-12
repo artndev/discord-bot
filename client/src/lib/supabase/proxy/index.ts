@@ -70,19 +70,11 @@ export async function updateSession(request: NextRequest) {
 
         const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!);
 
-        console.log('[Middleware] Querying guilds with:', { guildId, ownerId });
-
         const { data, error } = await supabaseAdmin
             .from('guilds')
             .select('id')
             .eq('id', guildId)
             .eq('owner_id', ownerId);
-
-        console.log(data, !!process.env.SUPABASE_SECRET_KEY);
-
-        if (error) {
-            console.error('[Middleware] Supabase Error:', error);
-        }
 
         if (!data || data.length === 0 || error) {
             const url = request.nextUrl.clone();
