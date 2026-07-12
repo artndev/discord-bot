@@ -1,5 +1,6 @@
 'use client';
 
+import { ErrorOverlay } from '@/components/custom/ui/error-overlay';
 import { Match } from '@/components/custom/ui/match';
 import {
     MatchForm,
@@ -183,15 +184,8 @@ export default function Matches() {
             : undefined;
     }, [memoizedCurrentMatch]);
 
-    if (
-        !matches ||
-        isLoading ||
-        guildIsLoading ||
-        registerMatchIsPending ||
-        updateMatchIsPending ||
-        deleteMatchIsPending
-    ) {
-        return <Settings.Skeleton />;
+    if (guildError) {
+        return <ErrorOverlay isEnabled={!!guildError} onRetry={guildRefetch} />;
     }
 
     return (
@@ -202,23 +196,36 @@ export default function Matches() {
                 <MatchForm ref={matchForm} withTrigger={false} onSubmit={handleUpdateMatch} />
             </DefaultValuesProvider>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {matches.map((match) => {
-                    return (
-                        <Match
-                            {...match}
-                            onRemove={() => deleteMatchMutation({ matchId: match.id })}
-                            onEdit={() => {
-                                setCurrentMatch(match);
+            {!matches ||
+            isLoading ||
+            guildIsLoading ||
+            registerMatchIsPending ||
+            updateMatchIsPending ||
+            deleteMatchIsPending ? (
+                <Settings.Skeleton />
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {matches.length > 0 ? (
+                        matches.map((match) => {
+                            return (
+                                <Match
+                                    {...match}
+                                    onRemove={() => deleteMatchMutation({ matchId: match.id })}
+                                    onEdit={() => {
+                                        setCurrentMatch(match);
 
-                                setTimeout(() => {
-                                    matchForm.current?.open();
-                                }, 500);
-                            }}
-                        />
-                    );
-                })}
-            </div>
+                                        setTimeout(() => {
+                                            matchForm.current?.open();
+                                        }, 500);
+                                    }}
+                                />
+                            );
+                        })
+                    ) : (
+                        <span className="text-muted">There isn't anything yet...</span>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

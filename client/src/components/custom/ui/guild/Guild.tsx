@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Database } from '@shared/types/database.types';
-import capitalize from 'lodash/capitalize';
 import { useRouter } from 'next/navigation';
 import { JSX, useMemo } from 'react';
 
@@ -18,9 +17,7 @@ function GuildComponent({ id, icon, name }: GuildProps) {
                 <Avatar className="size-full">
                     <AvatarImage src={icon ? `https://cdn.discordapp.com/icons/${id}/${icon}.png?size=128` : null} />
 
-                    <AvatarFallback className="text-2xl sm:text-4xl">
-                        {name ? capitalize(name.slice(0, 2)) : 'MS'}
-                    </AvatarFallback>
+                    <AvatarFallback className="text-xl">{name ? name.slice(0, 2).toUpperCase() : 'MS'}</AvatarFallback>
                 </Avatar>
             </div>
         );
@@ -35,7 +32,7 @@ function GuildComponent({ id, icon, name }: GuildProps) {
             </CardHeader>
 
             <CardFooter>
-                <Button onClick={() => router.replace(`/guilds/${id}`)}>Manage Instance</Button>
+                <Button onClick={() => router.replace(`/guilds/${id}`)}>Go to Dashboard</Button>
             </CardFooter>
         </Card>
     );

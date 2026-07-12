@@ -14,5 +14,5 @@ export default async (guild: Guild) => {
         ownerId = botAddLog?.executor?.id ?? guild.ownerId;
     } catch (err) {}
 
-    await guildService.registerGuild(guild.id, guild.name, ownerId);
+    await guildService.registerGuild(guild.id, guild.name, ownerId, guild.icon);
 };

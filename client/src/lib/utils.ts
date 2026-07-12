@@ -15,3 +15,10 @@ export function getFlagEmoji(countryCode: string) {
 
     return String.fromCodePoint(...codePoints);
 }
+
+export function inviteBot() {
+    window.open(
+        `https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID}`,
+        '_blank',
+    );
+}

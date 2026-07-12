@@ -1,12 +1,13 @@
 import { ApiResponse, Database, GuildSettings } from '@shared/types';
 import { apiClient } from './axios';
 
-export const registerGuild = async (id: string, name: string, ownerId: string) => {
+export const registerGuild = async (id: string, name: string, ownerId: string, icon: string | null) => {
     try {
         const response = await apiClient.post('/guilds', {
             id,
             name,
             owner_id: ownerId,
+            icon,
         });
 
         return response.data;

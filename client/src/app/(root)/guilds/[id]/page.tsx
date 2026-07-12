@@ -1,8 +1,10 @@
 'use client';
 
+import { ErrorOverlay } from '@/components/custom/ui/error-overlay';
 import { Settings } from '@/components/custom/ui/settings';
 import { WebhookForm } from '@/components/custom/ui/webhook-form/WebhookForm';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { IdParam } from '@/types';
 import { guildSettingSchema } from '@shared/schemas';
 import { GuildSettings } from '@shared/types';
@@ -54,30 +56,42 @@ export default function Guild() {
         },
     });
 
-    if (!guild || isLoading || isPending) {
-        return <Settings.Skeleton />;
+    if (error) {
+        return <ErrorOverlay isEnabled={!!error} onRetry={refetch} />;
     }
 
     return (
         <div className="flex flex-col gap-6">
-            <WebhookForm
-                defaultValues={{ webhookUrl: guild.settings?.meta?.webhookUrl ?? '' }}
-                onSubmit={({ webhookUrl }) => updateGuildSettingsMutate({ meta: { webhookUrl } })}
-            />
+            {!guild || isLoading || isPending ? (
+                <div className="flex flex-col gap-3">
+                    <Skeleton className="w-[100px] h-[30px]" />
+
+                    <Skeleton className="w-[300px] h-[30px]" />
+                </div>
+            ) : (
+                <WebhookForm
+                    defaultValues={{ webhookUrl: guild.settings?.meta?.webhookUrl ?? '' }}
+                    onSubmit={({ webhookUrl }) => updateGuildSettingsMutate({ meta: { webhookUrl } })}
+                />
+            )}
 
             <Separator />
 
-            <Settings
-                schema={guildSettingSchema._def.innerType}
-                defaultValues={guild.settings as any}
-                onSubmit={updateGuildSettingsMutate}
-                descriptions={{
-                    ai_profile:
-                        'Default profile that is used in AI-associated slash commands. It is used globally until a user decides to switch to another profile.',
-                    enable_echoing:
-                        'Echoing is determined to alert members of the server about creation of matches; in order to do so, you need to be equipped with a webhook.',
-                }}
-            />
+            {!guild || isLoading || isPending ? (
+                <Settings.Skeleton />
+            ) : (
+                <Settings
+                    schema={guildSettingSchema._def.innerType}
+                    defaultValues={guild.settings as any}
+                    onSubmit={updateGuildSettingsMutate}
+                    descriptions={{
+                        ai_profile:
+                            'Default profile that is used in AI-associated slash commands. It is used globally until a user decides to switch to another profile.',
+                        enable_echoing:
+                            'Echoing is determined to alert members of the server about creation of matches; in order to do so, you need to be equipped with a webhook.',
+                    }}
+                />
+            )}
         </div>
     );
 }

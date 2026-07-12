@@ -1,11 +1,6 @@
 import { z } from "zod";
 import { AI_PROFILE_KEYS, WEBHOOK_URL_REGEX } from "../constants";
 
-// test: z.string().trim().min(1).max(100).optional(),
-// test_4: z
-//   .array(z.enum(["enum_1", "enum_2", "enum_3", "enum_4", "enum_5"]))
-//   .optional(),
-
 export const guildSettingSchema = z
   .object({
     enable_echoing: z.boolean().optional(),
@@ -26,5 +21,6 @@ export const guildSchema = z.object({
   id: z.string().trim().min(1),
   owner_id: z.string().trim().min(1),
   name: z.string().trim().min(1),
+  icon: z.string().trim().min(1).nullable().optional(),
   settings: guildSettingSchema,
 });

@@ -104,7 +104,7 @@ function SettingsComponent<T extends ZodObject<any>>({
                         <Masonry
                             breakpointCols={BREAKPOINT_COLUMNS}
                             className="flex gap-6"
-                            columnClassName="flex flex-col gap-6">
+                            columnClassName="flex flex-col gap-6 py-0.5">
                             {items.map((data: any, i) => {
                                 return <MasonryCard key={`setting-${id}-${i}`} data={data} />;
                             })}

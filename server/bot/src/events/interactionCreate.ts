@@ -1,23 +1,6 @@
 import { CacheType, Interaction, MessageFlags } from 'discord.js';
 
 export default async (interaction: Interaction<CacheType>) => {
-    // if (interaction.isAutocomplete()) {
-    //     if (interaction.commandName === 'settings') {
-    //         const focused = interaction.options.getFocused();
-    //         const filtered = CONSTANTS.SETTINGS_OPTIONS.filter((option) => {
-    //             return option.startsWith(focused);
-    //         });
-
-    //         await interaction.respond(
-    //             filtered.map((option) => {
-    //                 return { name: option, value: option };
-    //             }),
-    //         );
-    //     }
-
-    //     return;
-    // }
-
     if (!interaction.isChatInputCommand()) {
         return;
     }
