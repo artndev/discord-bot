@@ -13,10 +13,11 @@ export function SingInForm({ onDiscord, isLoading = false, className, ...props }
         <div className={cn('flex flex-col gap-6', className)} {...props}>
             <Card>
                 <CardHeader>
-                    <CardTitle>Welcome back</CardTitle>
+                    <CardTitle>Welcome back!</CardTitle>
 
                     <CardDescription>
-                        Unlock your bot's control panel. Configure commands, view logs, and manage your server settings.
+                        Unlock <span className="font-bold">@FootMatches</span> control panel. Create matches, connect
+                        AIs and manage your server settings.
                     </CardDescription>
                 </CardHeader>
 
@@ -41,7 +42,7 @@ export function SingInForm({ onDiscord, isLoading = false, className, ...props }
                 </CardContent>
 
                 <CardFooter className="text-center text-xs text-muted-foreground">
-                    By signing in, you agree to our Terms of Service and Privacy Policy.
+                    By signing in, you agree to our Terms of Service and Privacy Policy (LICENSE).
                 </CardFooter>
             </Card>
         </div>

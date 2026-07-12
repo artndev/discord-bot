@@ -30,15 +30,15 @@ export function MatchScoreOTP<T extends FieldValues>({ label, control, name, rul
                             value={value}
                             containerClassName="flex justify-between w-full">
                             <InputOTPGroup>
-                                <InputOTPSlot index={0} aria-invalid={isInvalid} />
-                                <InputOTPSlot index={1} aria-invalid={isInvalid} />
+                                <InputOTPSlot index={0} aria-invalid={isInvalid} className="min-w-20" />
+                                <InputOTPSlot index={1} aria-invalid={isInvalid} className="min-w-20" />
                             </InputOTPGroup>
 
-                            <InputOTPSeparator />
+                            <InputOTPSeparator className="text-muted" />
 
                             <InputOTPGroup>
-                                <InputOTPSlot index={2} aria-invalid={isInvalid} />
-                                <InputOTPSlot index={3} aria-invalid={isInvalid} />
+                                <InputOTPSlot index={2} aria-invalid={isInvalid} className="min-w-20" />
+                                <InputOTPSlot index={3} aria-invalid={isInvalid} className="min-w-20" />
                             </InputOTPGroup>
                         </InputOTP>
 

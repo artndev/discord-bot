@@ -17,10 +17,10 @@ export function DatePicker({ value, onChange }: DatePickerProps) {
         <Popover>
             <PopoverTrigger asChild>
                 <Button
-                    variant={'outline'}
+                    variant="outline"
                     data-empty={!value}
-                    className="w-53 justify-between text-left font-normal data-[empty=true]:text-muted-foreground">
-                    {value ? format(value, 'PPP') : <span>Pick a date</span>}
+                    className="flex justify-between text-left font-normal data-[empty=true]:text-muted-foreground">
+                    {value ? format(value, 'dd MMMM, yyyy') : <span>Pick a date</span>}
                     <ChevronDownIcon data-icon="inline-end" />
                 </Button>
             </PopoverTrigger>

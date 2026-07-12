@@ -10,9 +10,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { getGuildById, updateGuildSettings } from './actions';
 
-// TODO:
-// During refetch - place loading screen to disable touching
-
 export default function Guild() {
     const { id } = useParams<IdParam>();
 

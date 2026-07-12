@@ -1,8 +1,14 @@
 'use client';
 
 import { Match } from '@/components/custom/ui/match';
-import { MatchForm, MatchFormMethods } from '@/components/custom/ui/match-form';
+import {
+    MatchForm,
+    MatchFormMethods,
+    MatchFormValues,
+    MatchFormValuesModified,
+} from '@/components/custom/ui/match-form';
 import { Settings } from '@/components/custom/ui/settings';
+import { DefaultValuesProvider } from '@/contexts/DefaultValuesContext';
 import { IdParam } from '@/types';
 import { GuildSettings } from '@shared/types';
 import { Database } from '@shared/types/database.types';
@@ -87,12 +93,14 @@ export default function Matches() {
                     const res = await sendMatchNotification(webhookUrl, match);
 
                     if (res.ok) {
-                        toast.success('Match created and notified! 🎮');
+                        toast.success('Match created and notified! 🎮', { position: 'bottom-left' });
                     } else {
-                        toast.error('Match created, but failed to notify via Discord ⚠️');
+                        toast.error('Match created, but failed to notify via Discord ⚠️', { position: 'bottom-left' });
                     }
                 } else {
-                    toast.success("Match created! (Webhook isn't configured or echoing is disabled) 🎮");
+                    toast.success("Match created! (Webhook isn't configured or echoing is disabled) 🎮", {
+                        position: 'bottom-left',
+                    });
                 }
             } catch (err) {}
 
@@ -146,65 +154,34 @@ export default function Matches() {
         },
     });
 
-    const handleRegisterMatch = useCallback<
-        (data: {
-            firstCountry: string;
-            secondCountry: string;
-            firstCountryScore: string;
-            secondCountryScore: string;
-            date: string;
-        }) => void
-    >(
-        (data) => {
-            registerMatchMutation({
-                first_country: data.firstCountry,
-                second_country: data.secondCountry,
-                first_country_score: data.firstCountryScore,
-                second_country_score: data.secondCountryScore,
-                date: data.date,
-            });
-        },
-        [registerMatchMutation],
-    );
+    const memoizedCurrentMatch = useMemo(() => {
+        return currentMatch;
+    }, [currentMatch]);
 
-    const handleUpdateMatch = useCallback<
-        (data: {
-            firstCountry: string;
-            secondCountry: string;
-            firstCountryScore: string;
-            secondCountryScore: string;
-            date: string;
-        }) => void
-    >(
+    const handleUpdateMatch = useCallback<(data: MatchFormValuesModified) => void>(
         (data) => {
-            if (!currentMatch) {
+            if (!memoizedCurrentMatch) {
                 return;
             }
 
             updateMatchMutation({
-                matchId: currentMatch.id,
-                match: {
-                    first_country: data.firstCountry,
-                    second_country: data.secondCountry,
-                    first_country_score: data.firstCountryScore,
-                    second_country_score: data.secondCountryScore,
-                    date: data.date,
-                },
+                matchId: memoizedCurrentMatch.id,
+                match: data,
             });
         },
-        [updateMatchMutation, currentMatch],
+        [updateMatchMutation, memoizedCurrentMatch],
     );
 
-    const matchFormDefaultValues = useMemo(() => {
-        return currentMatch
+    const matchFormDefaultValues = useMemo<MatchFormValues | undefined>(() => {
+        return memoizedCurrentMatch
             ? {
-                  firstCountry: currentMatch.first_country,
-                  secondCountry: currentMatch.second_country,
-                  score: currentMatch.first_country_score + currentMatch.second_country_score,
-                  date: currentMatch.date,
+                  first_country: memoizedCurrentMatch.first_country,
+                  second_country: memoizedCurrentMatch.second_country,
+                  score: memoizedCurrentMatch.first_country_score + memoizedCurrentMatch.second_country_score,
+                  date: memoizedCurrentMatch.date,
               }
             : undefined;
-    }, [currentMatch]);
+    }, [memoizedCurrentMatch]);
 
     if (
         !matches ||
@@ -219,15 +196,11 @@ export default function Matches() {
 
     return (
         <div className="flex flex-col gap-6">
-            <MatchForm onSubmit={handleRegisterMatch} />
+            <MatchForm onSubmit={registerMatchMutation} />
 
-            <MatchForm
-                key={currentMatch ? currentMatch.id : 'new'}
-                ref={matchForm}
-                withTrigger={false}
-                onSubmit={handleUpdateMatch}
-                defaultValues={matchFormDefaultValues}
-            />
+            <DefaultValuesProvider defaultValues={matchFormDefaultValues}>
+                <MatchForm ref={matchForm} withTrigger={false} onSubmit={handleUpdateMatch} />
+            </DefaultValuesProvider>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {matches.map((match) => {

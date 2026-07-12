@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getFlagEmoji } from '@/lib/utils';
 import { Database } from '@shared/types/database.types';
-import { Pencil, Trash } from 'lucide-react';
+import { format } from 'date-fns';
+import { Clock, Pencil, Trash } from 'lucide-react';
 
 export type MatchProps = {
     onEdit?: () => void;
@@ -15,6 +17,7 @@ export function Match({
     second_country,
     first_country_score,
     second_country_score,
+    date,
     onEdit,
     onRemove,
 }: MatchProps) {
@@ -26,9 +29,16 @@ export function Match({
 
             <CardContent>
                 <div className="flex items-center justify-between gap-6">
-                    <div className="flex justify-center items-center size-12 rounded-4xl border p-8">
-                        <span className="text-4xl">{getFlagEmoji(first_country)}</span>
-                    </div>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <div className="flex justify-center items-center size-12 rounded-4xl border p-8">
+                                <span className="text-4xl">{getFlagEmoji(first_country)}</span>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{first_country}</p>
+                        </TooltipContent>
+                    </Tooltip>
 
                     <div className="flex-1 flex justify-around items-center gap-6">
                         <span className="text-2xl font-semibold">{first_country_score}</span>
@@ -38,22 +48,36 @@ export function Match({
                         <span className="text-2xl font-semibold">{second_country_score}</span>
                     </div>
 
-                    <div className="flex justify-center items-center size-12 rounded-4xl border p-8">
-                        <span className="text-4xl">{getFlagEmoji(second_country)}</span>
-                    </div>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <div className="flex justify-center items-center size-12 rounded-4xl border p-8">
+                                <span className="text-4xl">{getFlagEmoji(second_country)}</span>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{second_country}</p>
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
             </CardContent>
 
-            <CardFooter className="gap-3">
-                <Button type="button" variant={'outline'} onClick={onEdit}>
-                    <Pencil />
-                    Edit
-                </Button>
+            <CardFooter className="flex flex-col items-end gap-3 w-full">
+                <div className="flex items-start gap-3 w-full">
+                    <Button type="button" variant={'outline'} onClick={onEdit}>
+                        <Pencil />
+                        Edit
+                    </Button>
 
-                <Button type="button" variant={'destructive'} onClick={onRemove}>
-                    <Trash />
-                    Remove
-                </Button>
+                    <Button type="button" variant={'destructive'} onClick={onRemove}>
+                        <Trash />
+                        Remove
+                    </Button>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-muted font-medium">
+                    <Clock width={16} height={16} />
+                    {format(date, 'dd MMMM, yyyy')}
+                </div>
             </CardFooter>
         </Card>
     );

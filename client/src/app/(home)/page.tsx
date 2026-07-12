@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
+import { LogOut } from 'lucide-react';
 import { getGuildsByOwnerId } from './actions';
 
 export default function Home() {
@@ -37,15 +38,20 @@ export default function Home() {
             <div className="flex items-center gap-3 border-b shadow-lg p-4">
                 {!user?.identity_data?.full_name ? (
                     <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold">Welcome to dashboard!</span>
+                        <span className="text-2xl font-bold">Welcome! Here are your guilds,</span>
 
-                        <Skeleton className="w-[100px] h-[30px]" />
+                        <Skeleton className="w-25 h-7.5" />
                     </div>
                 ) : (
-                    <span className="text-2xl font-bold">Welcome to dashboard, {user?.identity_data?.full_name}</span>
+                    <span className="text-2xl font-bold">
+                        Welcome! Here are your guilds, {user?.identity_data?.full_name}
+                    </span>
                 )}
 
-                <Button onClick={signOut}>Sign out</Button>
+                <Button onClick={signOut}>
+                    <LogOut />
+                    Sign out
+                </Button>
             </div>
 
             <div className="flex gap-3 p-6">
