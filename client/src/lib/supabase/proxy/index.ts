@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse, type NextRequest } from 'next/server';
-import { checkGuildByOwnerId } from './actions';
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -59,21 +59,30 @@ export async function updateSession(request: NextRequest) {
 
     if (request.nextUrl.pathname.startsWith('/guilds/')) {
         const guildId = request.nextUrl.pathname.split('/')[2];
+        const ownerId = user?.user_metadata?.sub;
 
-        try {
-            const ownerId = user?.user_metadata?.sub;
-            if (!ownerId) {
-                throw new Error('[proxy] ownerId is not defined!');
-            }
+        if (!ownerId) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/sign-in';
 
-            const isAccessible = await checkGuildByOwnerId(ownerId, guildId);
-            if (!isAccessible) {
-                const url = request.nextUrl.clone();
-                url.pathname = '/';
+            return NextResponse.redirect(url);
+        }
 
-                return NextResponse.redirect(url);
-            }
-        } catch (err) {}
+        const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!);
+
+        const { data, error } = await supabaseAdmin
+            .from('guilds')
+            .select('id')
+            .eq('id', guildId)
+            .eq('owner_id', ownerId)
+            .single();
+
+        if (!data || error) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/';
+
+            return NextResponse.redirect(url);
+        }
     }
 
     if (user && (request.nextUrl.pathname.startsWith('/sign-in') || request.nextUrl.pathname.startsWith('/auth'))) {
