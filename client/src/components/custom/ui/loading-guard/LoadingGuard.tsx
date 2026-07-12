@@ -4,12 +4,13 @@ import 'ldrs/react/Hatch.css';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useId, useRef, useState } from 'react';
 
-export interface LoadingGuardProps extends Omit<React.ComponentProps<'div'>, 'children'> {
+export interface LoadingGuardProps {
     isLoading?: boolean;
     bufferTime?: number;
+    className?: string;
 }
 
-export function LoadingGuard({ isLoading = false, bufferTime = 1500, className, ...props }: LoadingGuardProps) {
+export function LoadingGuard({ isLoading = false, bufferTime = 1500, className }: LoadingGuardProps) {
     const id = useId();
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const timeoutId = useRef<NodeJS.Timeout | null>(null);
@@ -49,8 +50,7 @@ export function LoadingGuard({ isLoading = false, bufferTime = 1500, className, 
                     className={cn(
                         'absolute z-9999 flex justify-center items-center size-full bg-[rgba(0,0,0,0.8)]',
                         className,
-                    )}
-                    {...props}>
+                    )}>
                     <Hatch size="28" stroke="4" speed="3.5" color="white" />
                 </motion.div>
             )}

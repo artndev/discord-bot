@@ -15,7 +15,9 @@ function GuildComponent({ id, icon, name }: GuildProps) {
         return (
             <div className="size-12">
                 <Avatar className="size-full">
-                    <AvatarImage src={icon ? `https://cdn.discordapp.com/icons/${id}/${icon}.png?size=128` : null} />
+                    <AvatarImage
+                        src={icon ? `https://cdn.discordapp.com/icons/${id}/${icon}.png?size=128` : undefined}
+                    />
 
                     <AvatarFallback className="text-xl">{name ? name.slice(0, 2).toUpperCase() : 'MS'}</AvatarFallback>
                 </Avatar>

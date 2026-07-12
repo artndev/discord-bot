@@ -53,10 +53,7 @@ export function WebhookForm({ defaultValues = { webhookUrl: '' }, onSubmit }: Ma
 
     return (
         <div className="flex-1">
-            <form
-                onSubmit={handleSubmit(handleOnSubmit)}
-                action={handleSubmit(() => handleOnSubmit({}))}
-                className="flex flex-col items-start gap-3 max-w-125">
+            <form onSubmit={handleSubmit(handleOnSubmit)} className="flex flex-col items-start gap-3 max-w-125">
                 <FieldGroup className="flex-row">
                     <InputField
                         label="Webhook URL"
