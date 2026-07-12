@@ -3,10 +3,8 @@ dotenv.config({ path: '.env.local' });
 
 import { GoogleGenAI } from '@google/genai';
 import { AI_PROFILES } from '@shared/constants';
-import { messageSchema } from '@shared/schemas';
 import { AiProfileName } from '@shared/types';
 import { Database } from '@shared/types/database.types';
-import z from 'zod';
 import { apiClient } from './axios';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -21,7 +19,7 @@ export const ask = async (
         `/ai_chat_history/${channelId}`,
     );
     const history = response.data.history.map(({ role, content }) => ({
-        role: role as z.infer<typeof messageSchema>['role'],
+        role: role as 'user' | 'model',
         parts: [{ text: content }],
     }));
 
