@@ -25,8 +25,28 @@ client.on(Events.Error, (err) => {
     console.warn('[bot/index.ts]', err);
 });
 
+const shutdown = async (signal: string) => {
+    console.log(`[bot/index.ts] Received ${signal}. Shutting down gracefully...`);
+
+    try {
+        await client.destroy();
+
+        process.exit(0);
+    } catch (error) {
+        console.error('[bot/index.ts] Error during shutdown:', error);
+
+        process.exit(1);
+    }
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 process.on('unhandledRejection', (reason, promise) => {
-    console.warn('[bot/index.ts]', promise, 'with reason:', reason);
+    console.error('[bot/index.ts] Unhandled Rejection at:', promise, 'with reason:', reason);
+
+    shutdown('unhandledRejection');
 });
 
 const loadCommands = async () => {

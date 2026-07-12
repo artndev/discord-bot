@@ -8,5 +8,8 @@
   },
   "devDependencies": {
     "supabase": "^2.109.0"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
   }
 }
