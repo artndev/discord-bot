@@ -48,11 +48,14 @@ export async function sendMatchNotification(webhookUrl: string, match: Database[
     const payload = {
         embeds: [
             {
-                title: '🎮 New Match Created!',
-                color: 0x00ff00,
+                title: '⚽ New Match is Registered',
+                color: 0x0099ff,
                 fields: [
-                    { name: 'Match ID', value: match.id, inline: true },
-                    { name: 'Status', value: 'Pending', inline: true },
+                    {
+                        name: `${match.first_country} vs ${match.second_country}`,
+                        value: `Score: **${match.first_country_score} - ${match.second_country_score}**\nDate: ${match.date}`,
+                        inline: true,
+                    },
                 ],
                 timestamp: new Date().toISOString(),
             },
