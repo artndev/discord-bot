@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/axios';
-import { ApiResponse } from '@/types';
+import { ApiResponse } from '@shared/types';
 import { Database } from '@shared/types/database.types';
 
 export async function checkGuildByOwnerId(ownerId: string, guildId: string) {
