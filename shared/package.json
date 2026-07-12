@@ -1,5 +1,5 @@
 {
-  "name": "@app/shared",
+  "name": "shared",
   "version": "1.0.0",
   "main": "index.ts",
   "types": "index.ts",
@@ -8,8 +8,5 @@
   },
   "devDependencies": {
     "supabase": "^2.109.0"
-  },
-  "dependencies": {
-    "zod": "^3.25.76"
   }
 }

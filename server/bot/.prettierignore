@@ -1,0 +1,4 @@
+.vscode/**
+.opencode/**
+node_modules/**
+**/*.md
