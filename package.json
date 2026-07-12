@@ -4,5 +4,6 @@
   "workspaces": [
     "client",
     "server"
+    "shared"
   ]
 }
