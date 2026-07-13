@@ -22,68 +22,55 @@ export default {
                 ),
         ),
     execute: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply();
+
         const summarize = interaction.options.getBoolean('summarize') ?? false;
         let aiProfile = interaction.options.getString('profile');
 
-        await interaction.deferReply();
+        if (!interaction.guildId) {
+            throw new Error('[scores] Not enough permissions');
+        }
 
-        try {
-            if (!interaction.guildId) {
-                throw new Error('[scores] Not enough permissions');
-            }
+        const matches = await matchService.getAllMatches(interaction.guildId);
+        const embed = formatMatchesToEmbed(matches);
 
-            const matches = await matchService.getAllMatches(interaction.guildId);
-            const embed = formatMatchesToEmbed(matches);
+        await interaction.editReply({ embeds: [embed] });
 
-            await interaction.editReply({ embeds: [embed] });
+        if (summarize) {
+            if (!aiProfile) {
+                try {
+                    const guild = await guildService.getGuildById(interaction.guildId);
 
-            if (summarize) {
-                if (!aiProfile) {
-                    try {
-                        const guild = await guildService.getGuildById(interaction.guildId);
+                    aiProfile = guild.settings.ai_profile ?? 'default';
+                } catch (error) {
+                    console.warn("[scores] Could not parse ai_profile, resetting to 'default'");
 
-                        aiProfile = guild.settings.ai_profile ?? 'default';
-                    } catch (error) {
-                        console.warn("[scores] Could not parse ai_profile, resetting to 'default'");
-
-                        aiProfile = 'default';
-                    }
-                }
-
-                const additionalContext = matches
-                    .map((match) => {
-                        return `${match.date}: ${match.first_country} ${match.first_country_score} - ${match.second_country_score} ${match.second_country}`;
-                    })
-                    .join('\n');
-
-                const summary = await aiService.ask(
-                    interaction.channelId,
-                    'Provide a brief summary and tactical analysis of these recent match results.',
-                    aiProfile as AiProfileName,
-                    additionalContext,
-                );
-                if (!summary) {
-                    console.warn('[scores] Failed to process AI summary.');
-
-                    await interaction.followUp({
-                        content: '[❌] Could not generate AI summary.',
-                        flags: ['Ephemeral'],
-                    });
-
-                    return;
-                }
-
-                const chunks = splitMessage(summary);
-                await interaction.followUp(chunks[0]!);
-
-                for (let i = 1; i < chunks.length; i++) {
-                    await interaction.followUp(chunks[i]!);
+                    aiProfile = 'default';
                 }
             }
-        } catch (err) {
-            console.warn(err);
 
-            await interaction.editReply('[❌] Failed to fetch scores.');
+            const additionalContext = matches
+                .map((match) => {
+                    return `${match.date}: ${match.first_country} ${match.first_country_score} - ${match.second_country_score} ${match.second_country}`;
+                })
+                .join('\n');
+
+            const summary = await aiService.ask(
+                interaction.channelId,
+                'Provide a brief summary and tactical analysis of these recent match results.',
+                aiProfile as AiProfileName,
+                additionalContext,
+            );
+            if (!summary) {
+                throw new Error('[scores ]Could not generate AI summary.');
+            }
+
+            const chunks = splitMessage(summary);
+            await interaction.followUp(chunks[0]!);
+
+            for (let i = 1; i < chunks.length; i++) {
+                await interaction.followUp(chunks[i]!);
+            }
         }
     },
 };

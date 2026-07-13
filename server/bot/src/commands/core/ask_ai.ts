@@ -23,43 +23,37 @@ export default {
                 ),
         ),
     execute: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply();
+
         const question = interaction.options.getString('question')!;
         let aiProfile = interaction.options.getString('profile');
 
-        await interaction.deferReply();
-
-        try {
-            if (!aiProfile) {
-                try {
-                    if (!interaction.guildId) {
-                        throw new Error('[ask_ai] Not enough permissions');
-                    }
-
-                    const guild = await guildService.getGuildById(interaction.guildId);
-
-                    aiProfile = guild.settings.ai_profile ?? 'default';
-                } catch (error) {
-                    console.warn("[ask_ai] Could not parse ai_profile, resetting to 'default'");
-
-                    aiProfile = 'default';
+        if (!aiProfile) {
+            try {
+                if (!interaction.guildId) {
+                    throw new Error('[ask_ai] Not enough permissions');
                 }
+
+                const guild = await guildService.getGuildById(interaction.guildId);
+
+                aiProfile = guild.settings.ai_profile ?? 'default';
+            } catch (error) {
+                console.warn("[ask_ai] Could not parse ai_profile, resetting to 'default'");
+
+                aiProfile = 'default';
             }
+        }
 
-            const answer = await aiService.ask(interaction.channelId, question, aiProfile as AiProfileName);
-            if (!answer) {
-                throw new Error('[ask_ai] Failed to process AI answer.');
-            }
+        const answer = await aiService.ask(interaction.channelId, question, aiProfile as AiProfileName);
+        if (!answer) {
+            throw new Error('[ask_ai] Failed to process AI answer.');
+        }
 
-            const chunks = splitMessage(answer);
-            await interaction.editReply(chunks[0]!);
+        const chunks = splitMessage(answer);
+        await interaction.editReply(chunks[0]!);
 
-            for (let i = 1; i < chunks.length; i++) {
-                await interaction.followUp(chunks[i]!);
-            }
-        } catch (err) {
-            console.warn(err);
-
-            await interaction.editReply('[❌] Failed to generate an AI response.');
+        for (let i = 1; i < chunks.length; i++) {
+            await interaction.followUp(chunks[i]!);
         }
     },
 };
