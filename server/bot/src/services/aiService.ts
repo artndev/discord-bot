@@ -24,7 +24,7 @@ export const ask = async (
     }));
 
     const { text } = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-2.5-flash',
         contents: [...history, { role: 'user', parts: [{ text: message }] }],
         config: { systemInstruction: `${AI_PROFILES[profileName]}\n${additionalContext ?? ''}` },
     });
